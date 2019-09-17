@@ -4,11 +4,12 @@ import time
 
 
 #setup
-canvas = np.zeros((960, 1680, 3), dtype = "uint8")
+canvas = np.zeros((960, 1680, 4), dtype = "CV_8UC4")
 red = (0, 0, 255)
 green = (0, 255, 0)
 blue = (255, 0, 0)
 white = (255, 255, 255)
+translucent = (255, 255, 255, 50)
 
 #shapes
 """cv2.line(canvas, (0, 0), (300, 300), green)
@@ -37,12 +38,12 @@ cv2.waitKey(0)
 for i in range(0, 1000):
 
     radius = np.random.randint(5, high = 69)
-    color = np.random.randint(0, high = 256, size = (3,)).tolist()
+    color = np.random.randint(0, high = 256, size = (4,)).tolist()
     pt = np.random.randint(0, high = 960)
     pt2 = np.random.randint(0, high = 1680)
     cv2.circle(canvas, (pt2, pt), radius, color, -1)
     cv2.imshow("Canvas", canvas)
-    cv2.waitKey(50)
+    cv2.waitKey(1)
 
 #drawing
 cv2.waitKey(0)
