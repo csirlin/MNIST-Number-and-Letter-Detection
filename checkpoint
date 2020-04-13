@@ -1,0 +1,2 @@
+model_checkpoint_path: "lmnist_nn.txt"
+all_model_checkpoint_paths: "lmnist_nn.txt"
