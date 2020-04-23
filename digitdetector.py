@@ -77,6 +77,10 @@ combined = list(zip(testImages, testLabels))
 np.random.shuffle(combined)
 testImages[:], testLabels[:] = zip(*combined)
 
+trainImages.setflags(write=0)
+trainLabels.setflags(write=0)
+testImages.setflags(write=0)
+testLabels.setflags(write=0)
 
 
 '''

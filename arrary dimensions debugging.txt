@@ -23,5 +23,5 @@ Test Images (teI) shape: (10000, 784)type: <class 'numpy.ndarray'>
 
 Train Images (trI) shape: (124800, 28, 28)type: <class 'numpy.ndarray'>
 Test Labels (teL, tel) shape: (20800,)(20800, 26)type: <class 'numpy.ndarray'>
-Test Images (teI) shape: (20800, 28, 28)type: <class 'numpy.ndarray'>
+Test Images (teI) shape: (20800, 28, 28)type: <claqqss 'numpy.ndarray'>
 Train Labels (trL, trl) shape: (124800,)(124800, 26)type: <class 'numpy.ndarray'>
