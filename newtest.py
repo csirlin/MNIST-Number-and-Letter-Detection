@@ -10,6 +10,7 @@ import os
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 import idx2numpy
+import struct
 
 #import mnist data and print basic info about it
 print("Type 'true' for EMNIST (letters) and anything else for MNIST (numbers)")
@@ -22,14 +23,47 @@ testLabels = []
 
 if lettertest != "true":
     print("Running MNIST")
-    trainImages = mnist.train.images
-    trainLabels = mnist.train.labels
-    testImages = mnist.test.images
-    testLabels = mnist.test.labels
 
-    trainImages = trainImages.reshape(55000, 784)
+    trI = mnist.train.images
+    trL = mnist.train.labels
+    teI = mnist.test.images
+    teL = mnist.test.labels
+
+    '''
+    trainLabels = np.copy(idx2numpy.convert_from_file('train-labels-idx1-ubyte'))
+    trainImages = np.copy(idx2numpy.convert_from_file('train-images-idx3-ubyte'))
+    testLabels = np.copy(idx2numpy.convert_from_file('t10k-labels-idx1-ubyte'))
+    testImages = np.copy(idx2numpy.convert_from_file('t10k-images-idx3-ubyte'))
+    trainImages = trainImages.reshape(60000, 784)
     testImages = testImages.reshape(10000, 784)
 
+    trainImages = trainImages.reshape(60000, 784)
+    testImages = testImages.reshape(10000, 784)
+
+    '''
+    with open('train-images-idx3-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        nrows, ncols = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        trainImages = data.reshape((size, nrows*ncols))
+
+    with open('t10k-images-idx3-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        nrows, ncols = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        testImages = data.reshape((size, nrows*ncols))
+
+    with open('train-labels-idx1-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        trainLabels = data.reshape(size)
+
+    with open('t10k-labels-idx1-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        testLabels = data.reshape(size)
+
+    '''
     combined = list(zip(trainImages, trainLabels))
     np.random.shuffle(combined)
     trainImages[:], trainLabels[:] = zip(*combined)
@@ -37,6 +71,42 @@ if lettertest != "true":
     combined = list(zip(testImages, testLabels))
     np.random.shuffle(combined)
     testImages[:], testLabels[:] = zip(*combined)
+    '''
+
+    trainLabelsTemp = np.zeros((60000, 10))
+    testLabelsTemp = np.zeros((10000, 10))
+
+    for i in range(0, len(trainLabels)):
+        value = int(trainLabels[i])-1
+        trainLabelsTemp[i][value] = 1
+
+    for i in range(0, len(testLabels)):
+        value = int(testLabels[i])-1
+        testLabelsTemp[i][value] = 1
+
+    '''
+    for i in range(0, len(trainImages)):
+        for j in range(0, len(trainImages[0])):
+            value = trainImages[i][j]
+            trainImages[i][j] = value/256.0
+        if i%1000 == 0:
+            print(str(i))
+
+    for i in range(0, len(testImages)):
+        for j in range(0, len(testImages[0])):
+            value = testImages[i][j]
+            testImages[i][j] = value/256.0
+        if i%1000 == 0:
+            print(str(i))
+    '''
+    trainLabels = np.copy(trainLabelsTemp)
+    testLabels = np.copy(testLabelsTemp)
+
+    print("Working MNIST pictures: " + str(trI[0]))
+    print("Not working MNIST pictures: " + str(trainImages[0]))
+
+    print("Working MNIST labels: " + str(trL[0]))
+    print("Not working MNIST labels: " + str(trainLabels[0]))
 
 else:
     print("Running EMNIST")
@@ -106,6 +176,8 @@ else:
         plt.figure().canvas.set_window_title("testLabel example {}/10. Press Q to move on".format(i+1))
         plt.imshow(testImages[i].reshape(28,28).transpose(), cmap='gray')
         plt.show()
+
+
 
 #print('trainImages:', trainImages.shape)
 #print('trainLabels:', trainLabels.shape)
