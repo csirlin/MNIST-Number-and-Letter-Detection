@@ -45,23 +45,23 @@ if lettertest != "true":
         magic, size = struct.unpack(">II", f.read(8))
         nrows, ncols = struct.unpack(">II", f.read(8))
         data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
-        trainImages = data.reshape((size, nrows*ncols))
+        trainImages = data.reshape((size, nrows*ncols)).astype(float)
 
     with open('t10k-images-idx3-ubyte.txt','rb') as f:
         magic, size = struct.unpack(">II", f.read(8))
         nrows, ncols = struct.unpack(">II", f.read(8))
         data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
-        testImages = data.reshape((size, nrows*ncols))
+        testImages = data.reshape((size, nrows*ncols)).astype(float)
 
     with open('train-labels-idx1-ubyte.txt','rb') as f:
         magic, size = struct.unpack(">II", f.read(8))
         data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
-        trainLabels = data.reshape(size)
+        trainLabels = data.reshape(size).astype(float)
 
     with open('t10k-labels-idx1-ubyte.txt','rb') as f:
         magic, size = struct.unpack(">II", f.read(8))
         data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
-        testLabels = data.reshape(size)
+        testLabels = data.reshape(size).astype(float)
 
     '''
     combined = list(zip(trainImages, trainLabels))
@@ -84,7 +84,6 @@ if lettertest != "true":
         value = int(testLabels[i])-1
         testLabelsTemp[i][value] = 1
 
-    '''
     for i in range(0, len(trainImages)):
         for j in range(0, len(trainImages[0])):
             value = trainImages[i][j]
@@ -98,7 +97,7 @@ if lettertest != "true":
             testImages[i][j] = value/256.0
         if i%1000 == 0:
             print(str(i))
-    '''
+
     trainLabels = np.copy(trainLabelsTemp)
     testLabels = np.copy(testLabelsTemp)
 
@@ -109,6 +108,91 @@ if lettertest != "true":
     print("Not working MNIST labels: " + str(trainLabels[0]))
 
 else:
+    print("Running EMNIST")
+
+    trI = mnist.train.images
+    trL = mnist.train.labels
+    teI = mnist.test.images
+    teL = mnist.test.labels
+
+    '''
+    trainLabels = np.copy(idx2numpy.convert_from_file('train-labels-idx1-ubyte'))
+    trainImages = np.copy(idx2numpy.convert_from_file('train-images-idx3-ubyte'))
+    testLabels = np.copy(idx2numpy.convert_from_file('t10k-labels-idx1-ubyte'))
+    testImages = np.copy(idx2numpy.convert_from_file('t10k-images-idx3-ubyte'))
+    trainImages = trainImages.reshape(60000, 784)
+    testImages = testImages.reshape(10000, 784)
+
+    trainImages = trainImages.reshape(60000, 784)
+    testImages = testImages.reshape(10000, 784)
+
+    '''
+    with open('emnist-letters-train-images-idx3-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        nrows, ncols = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        trainImages = data.reshape((size, nrows*ncols)).astype(float)
+
+    with open('emnist-letters-test-images-idx3-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        nrows, ncols = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        testImages = data.reshape((size, nrows*ncols)).astype(float)
+
+    with open('emnist-letters-train-labels-idx1-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        trainLabels = data.reshape(size).astype(float)
+
+    with open('emnist-letters-test-labels-idx1-ubyte.txt','rb') as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+        testLabels = data.reshape(size).astype(float)
+
+    '''
+    combined = list(zip(trainImages, trainLabels))
+    np.random.shuffle(combined)
+    trainImages[:], trainLabels[:] = zip(*combined)
+
+    combined = list(zip(testImages, testLabels))
+    np.random.shuffle(combined)
+    testImages[:], testLabels[:] = zip(*combined)
+    '''
+
+    trainLabelsTemp = np.zeros((60000, 10))
+    testLabelsTemp = np.zeros((10000, 10))
+
+    for i in range(0, len(trainLabels)):
+        value = int(trainLabels[i])-1
+        trainLabelsTemp[i][value] = 1
+
+    for i in range(0, len(testLabels)):
+        value = int(testLabels[i])-1
+        testLabelsTemp[i][value] = 1
+
+    for i in range(0, len(trainImages)):
+        for j in range(0, len(trainImages[0])):
+            value = trainImages[i][j]
+            trainImages[i][j] = value/256.0
+        if i%1000 == 0:
+            print(str(i))
+
+    for i in range(0, len(testImages)):
+        for j in range(0, len(testImages[0])):
+            value = testImages[i][j]
+            testImages[i][j] = value/256.0
+        if i%1000 == 0:
+            print(str(i))
+
+    trainLabels = np.copy(trainLabelsTemp)
+    testLabels = np.copy(testLabelsTemp)
+
+    print("Working MNIST pictures: " + str(trI[0]))
+    print("Not working MNIST pictures: " + str(trainImages[0]))
+
+    print("Working MNIST labels: " + str(trL[0]))
+    print("Not working MNIST labels: " + str(trainLabels[0]))
+    '''
     print("Running EMNIST")
     trainLabels = np.copy(idx2numpy.convert_from_file('emnist-letters-train-labels-idx1-ubyte.txt'))
     trainImages = np.copy(idx2numpy.convert_from_file('emnist-letters-train-images-idx3-ubyte.txt'))
@@ -176,6 +260,7 @@ else:
         plt.figure().canvas.set_window_title("testLabel example {}/10. Press Q to move on".format(i+1))
         plt.imshow(testImages[i].reshape(28,28).transpose(), cmap='gray')
         plt.show()
+    '''
 
 
 
@@ -294,7 +379,7 @@ y = tf.matmul(z2, w3) + b3
 loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=y)
 step = tf.train.AdamOptimizer().minimize(loss)
 BATCH_SIZE = 32
-EPOCHS = 15
+EPOCHS = 40
 m = len(trainImages)
 
 #creates training session
@@ -314,8 +399,8 @@ for epoch in range(EPOCHS):
 
 
 #allows for saving and loading models. either run restore or save
-saver = tf.train.Saver()
-saver.restore(sess, "mnist_nn.txt")
+#saver = tf.train.Saver()
+#saver.restore(sess, "mnist_nn.txt")
 #saver.save(sess, "mnist_nn.txt")
 
 '''

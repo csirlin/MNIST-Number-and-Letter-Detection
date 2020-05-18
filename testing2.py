@@ -8,11 +8,27 @@ import cv2
 from tensorflow.examples.tutorials.mnist import input_data
 import matplotlib.image as mpimg
 
+array = np.full((4,4),200.0)
+print(array)
+
+for i in range(0, len(array)):
+    for j in range(0, len(array[0])):
+        value = array[i][j]
+        print(value)
+
+        newvalue = value/256
+        print(newvalue)
+
+        array[i][j] = newvalue
+
+print(array)
+
+'''
 print(tfds.list_builders())
 emnist = tfds.load(name='emnist', split='train')
 
 
-'''
+
 mnist = input_data.read_data_sets('emnist/letters', one_hot=True)
 
 trainImages = mnist.train.images
