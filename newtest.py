@@ -149,26 +149,40 @@ else:
         data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
         testLabels = data.reshape(size).astype(float)
 
-    '''
-    combined = list(zip(trainImages, trainLabels))
-    np.random.shuffle(combined)
-    trainImages[:], trainLabels[:] = zip(*combined)
+    p = np.random.permutation(len(trainLabels))
+    trainImages = np.copy(trainImages[p])
+    trainLabels = np.copy(trainLabels[p])
 
-    combined = list(zip(testImages, testLabels))
-    np.random.shuffle(combined)
-    testImages[:], testLabels[:] = zip(*combined)
-    '''
+    p = np.random.permutation(len(testLabels))
+    testImages = np.copy(testImages[p])
+    testLabels = np.copy(testLabels[p])
 
-    trainLabelsTemp = np.zeros((60000, 10))
-    testLabelsTemp = np.zeros((10000, 10))
+    trainLabelsTemp = np.zeros((48000, 10))
+    testLabelsTemp = np.zeros((8000, 10))
+    trainImagesTemp = np.zeros((48000, 784))
+    testImagesTemp = np.zeros((8000, 784))
 
+    j=0
     for i in range(0, len(trainLabels)):
-        value = int(trainLabels[i])-1
-        trainLabelsTemp[i][value] = 1
-
+        if trainLabels[i] <= 10:
+            value = trainLabels[i]
+            trainLabelsTemp[j][int(value)-1] = 1.0
+            print("TRAINLABEL:{}".format(trainLabelsTemp[j]))
+            trainImagesTemp[j] = trainImages[i]
+            j+=1
+    j=0
     for i in range(0, len(testLabels)):
-        value = int(testLabels[i])-1
-        testLabelsTemp[i][value] = 1
+        if testLabels[i] <= 10:
+            value = testLabels[i]
+            testLabelsTemp[j][int(value)-1] = 1.0
+            print("TESTLABEL:{}".format(testLabelsTemp[j]))
+            testImagesTemp[j] = testImages[i]
+            j+=1
+
+    trainLabels = np.copy(trainLabelsTemp)
+    testLabels = np.copy(testLabelsTemp)
+    trainImages = np.copy(trainImagesTemp)
+    testImages = np.copy(testImagesTemp)
 
     for i in range(0, len(trainImages)):
         for j in range(0, len(trainImages[0])):
@@ -184,14 +198,6 @@ else:
         if i%1000 == 0:
             print(str(i))
 
-    trainLabels = np.copy(trainLabelsTemp)
-    testLabels = np.copy(testLabelsTemp)
-
-    print("Working MNIST pictures: " + str(trI[0]))
-    print("Not working MNIST pictures: " + str(trainImages[0]))
-
-    print("Working MNIST labels: " + str(trL[0]))
-    print("Not working MNIST labels: " + str(trainLabels[0]))
     '''
     print("Running EMNIST")
     trainLabels = np.copy(idx2numpy.convert_from_file('emnist-letters-train-labels-idx1-ubyte.txt'))
@@ -261,13 +267,6 @@ else:
         plt.imshow(testImages[i].reshape(28,28).transpose(), cmap='gray')
         plt.show()
     '''
-
-
-
-#print('trainImages:', trainImages.shape)
-#print('trainLabels:', trainLabels.shape)
-#print('testImages:', testImages.shape)
-#print('testLabels:', testLabels.shape)
 
 #matplotlib event listener
 loop = True
