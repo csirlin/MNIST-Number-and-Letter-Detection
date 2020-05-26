@@ -12,12 +12,9 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 import struct
 
-print("Running MNIST")
-
-trI = mnist.train.images
-trL = mnist.train.labels
-teI = mnist.test.images
-teL = mnist.test.labels
+print("Running EMNIST")
+print("What number of letters would you like to include?")
+lettercount = int(input())
 
 '''
 trainLabels = np.copy(idx2numpy.convert_from_file('train-labels-idx1-ubyte'))
@@ -53,34 +50,40 @@ with open('emnist-letters-test-labels-idx1-ubyte.txt','rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
     testLabels = data.reshape(size).astype(float)
 
+p = np.random.permutation(len(trainLabels))
+trainImages = np.copy(trainImages[p])
+trainLabels = np.copy(trainLabels[p])
 
-combined = list(zip(trainImages, trainLabels))
-np.random.shuffle(combined)
-trainImages[:], trainLabels[:] = zip(*combined)
+p = np.random.permutation(len(testLabels))
+testImages = np.copy(testImages[p])
+testLabels = np.copy(testLabels[p])
 
-combined = list(zip(testImages, testLabels))
-np.random.shuffle(combined)
-testImages[:], testLabels[:] = zip(*combined)
+trainLabelsTemp = np.zeros((4800*lettercount, lettercount))
+testLabelsTemp = np.zeros((800*lettercount, lettercount))
+trainImagesTemp = np.zeros((4800*lettercount, 784))
+testImagesTemp = np.zeros((800*lettercount, 784))
 
-trainLabelsTemp = np.zeros((124800, 26))
-testLabelsTemp = np.zeros((20800, 26))
-
-print(len(trainLabels))
-print(len(testLabels))
-
+j=0
 for i in range(0, len(trainLabels)):
-    value = int(trainLabels[i])-1
-    trainLabelsTemp[i][value] = 1
-
+    if trainLabels[i] <= lettercount:
+        value = trainLabels[i]
+        trainLabelsTemp[j][int(value)-1] = 1.0
+        print("TRAINLABEL:{}".format(trainLabelsTemp[j]))
+        trainImagesTemp[j] = trainImages[i]
+        j+=1
+j=0
 for i in range(0, len(testLabels)):
-    value = int(testLabels[i])-1
-    testLabelsTemp[i][value] = 1
+    if testLabels[i] <= lettercount:
+        value = testLabels[i]
+        testLabelsTemp[j][int(value)-1] = 1.0
+        print("TESTLABEL:{}".format(testLabelsTemp[j]))
+        testImagesTemp[j] = testImages[i]
+        j+=1
 
 trainLabels = np.copy(trainLabelsTemp)
 testLabels = np.copy(testLabelsTemp)
-
-print("Not working MNIST pictures: " + str(trainImages[0]))
-print("Not working MNIST labels: " + str(trainLabels[0]))
+trainImages = np.copy(trainImagesTemp)
+testImages = np.copy(testImagesTemp)
 
 for i in range(0, len(trainImages)):
     for j in range(0, len(trainImages[0])):
@@ -96,87 +99,6 @@ for i in range(0, len(testImages)):
     if i%1000 == 0:
         print(str(i))
 
-print("Not working MNIST pictures: " + str(trainImages[0]))
-print("Not working MNIST labels: " + str(trainLabels[0]))
-
-'''
-#mnist data for comparison
-mtrainImages = mnist.train.images
-mtrainLabels = mnist.train.labels
-mtestImages = mnist.test.images
-mtestLabels = mnist.test.labels
-
-print(mtestLabels.shape)
-print(mtestLabels[1])
-
-#emnist
-trainLabels = np.copy(idx2numpy.convert_from_file('emnist-letters-train-labels-idx1-ubyte.txt'))
-trainImages = np.copy(idx2numpy.convert_from_file('emnist-letters-train-images-idx3-ubyte.txt'))
-testLabels = np.copy(idx2numpy.convert_from_file('emnist-letters-test-labels-idx1-ubyte.txt'))
-testImages = np.copy(idx2numpy.convert_from_file('emnist-letters-test-images-idx3-ubyte.txt'))
-
-print(mtrainImages.flags)
-print(trainImages.flags)
-
-#shuffling the datasets
-combined = list(zip(mtrainImages, mtrainLabels))
-np.random.shuffle(combined)
-mtrainImages[:], mtrainLabels[:] = zip(*combined)
-
-combined = list(zip(mtestImages, mtestLabels))
-np.random.shuffle(combined)
-mtestImages[:], mtestLabels[:] = zip(*combined)
-
-
-combined = list(zip(trainImages, trainLabels))
-np.random.shuffle(combined)
-trainImages[:], trainLabels[:] = zip(*combined)
-
-combined = list(zip(testImages, testLabels))
-np.random.shuffle(combined)
-testImages[:], testLabels[:] = zip(*combined)
-
-#testing with 10 letters
-trl10 = []
-tri10 = []
-tel10 = []
-tei10 = []
-
-for i in range(0, len(trainLabels)):
-    if trainLabels[i] <= 10:
-        trl10.append(trainLabels[i])
-        tri10.append(trainImages[i])
-
-for i in range(0, len(testLabels)):
-    if testLabels[i] <= 10:
-        tel10.append(testLabels[i])
-        tei10.append(testImages[i])
-
-trainLabels = np.copy(trl10)
-trainImages = np.copy(tri10)
-testLabels = np.copy(tel10)
-testImages = np.copy(tei10)
-
-
-#images are stored column by column for some reason, this fixes that.
-for i in range(0, len(trainImages)):
-    trainImages[i] = trainImages[i].transpose()
-for i in range(0, len(testImages)):
-    testImages[i] = testImages[i].transpose()
-'''
-'''
-#examples from both training and testing datasets
-for i in range(0, 10):
-    print("Training set examples: {} ({})".format(chr(trainLabels[i]+64), trainLabels[i]))
-    plt.imshow(np.asarray(trainImages[i]).reshape(28,28), cmap='gray')
-    plt.show()
-for i in range(0, 10):
-    print("Test set examples: {} ({})".format(chr(testLabels[i]+64), testLabels[i]))
-    plt.imshow(np.asarray(testImages[i]).reshape(28,28), cmap='gray')
-    plt.show()
-'''
-
-#matplotlib event listener
 loop = True
 def press(event):
     if event.key == 'q':
@@ -184,52 +106,12 @@ def press(event):
         loop = False
     if event.key == ' ':
         plt.close()
-print(trainLabels.shape)
-print(trainImages.shape)
 
-'''
-trainLabelsTemp = np.zeros((48000, 10))
-testLabelsTemp = np.zeros((8000, 10))
-
-#changing the format
-for i in range(0, len(trainLabels)):
-    value = int(trainLabels[i])-1
-    trainLabelsTemp[i][value] = 1
-
-for i in range(0, len(testLabels)):
-    value = int(testLabels[i])-1
-    testLabelsTemp[i][value] = 1
-
-trainLabels = trainLabelsTemp
-testLabels = testLabelsTemp
-trainImages = trainImages.reshape(48000, 784)
-testImages = testImages.reshape(8000, 784)
-
-for i in range(0,20):
-    print(trainLabels[i])
-    print(np.argmax(trainLabels[i]))
-    plt.imshow(trainImages[i].reshape(28,28), cmap='gray')
-    plt.show()
-
-for i in range(0,20):
-    print(testLabels[i])
-    print(np.argmax(testLabelsTemp[i]))
-    plt.imshow(testImages[i].reshape(28,28), cmap='gray')
-    plt.show()
-
-print("MNIST" + str(mtestImages.shape) + "EMNIST" + str(testImages.shape))
-print("MNIST" + str(mtrainImages.shape) + "EMNIST" + str(trainImages.shape))
-print("MNIST" + str(mtestLabels.shape) + "EMNIST" + str(testLabels.shape))
-print("MNIST" + str(mtrainLabels.shape) + "EMNIST" + str(trainLabels.shape))
-print("MNSIT" + str(mtestLabels[0]) + "EMNIST" + str(testLabels[1]))
-'''
-
-
-
+count = 0
 
 #neural network setup
 X = tf.placeholder(tf.float32, shape=(None, 784), name='X')
-labels = tf.placeholder(tf.float32, shape=(None, 26), name='Labels')
+labels = tf.placeholder(tf.float32, shape=(None, lettercount), name='Labels')
 
 #first round
 w1 = tf.Variable(name='w1', initial_value=tf.random_normal(shape=(784, 128), dtype=tf.float32))
@@ -244,15 +126,15 @@ a2 = tf.matmul(z1, w2) + b2
 z2 = tf.nn.relu(a2)
 
 #third round
-w3 = tf.Variable(name='w3', initial_value=tf.random_normal(shape=(32, 26), dtype=tf.float32))
-b3 = tf.Variable(name='b3', initial_value=tf.zeros(shape=(1,26), dtype=tf.float32))
+w3 = tf.Variable(name='w3', initial_value=tf.random_normal(shape=(32, lettercount), dtype=tf.float32))
+b3 = tf.Variable(name='b3', initial_value=tf.zeros(shape=(1,lettercount), dtype=tf.float32))
 y = tf.matmul(z2, w3) + b3
 
 #training setup and parameters
 loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=y)
 step = tf.train.AdamOptimizer().minimize(loss)
-BATCH_SIZE = 64
-EPOCHS = 10
+BATCH_SIZE = 128
+EPOCHS = 80
 m = len(trainImages)
 
 #creates training session
@@ -265,23 +147,19 @@ for epoch in range(EPOCHS):
         trainBatch = trainImages[i-BATCH_SIZE:i]
         labelBatch = trainLabels[i-BATCH_SIZE:i]
         sess.run(step, feed_dict={X:trainBatch, labels:labelBatch})
-    #if (epoch+1) % 5 = 0:
-    predictions, test_loss = sess.run([y, loss], feed_dict={X:testImages, labels:testLabels})
-    accuracy = np.mean(np.argmax(testLabels, axis=1) == np.argmax(predictions, axis=1))
-    print('Epoch: %d\tloss: %1.4f\taccuracy: %1.4f' % (epoch+1, test_loss, accuracy))
+    if (epoch+1) % 5 == 0:
+        predictions, test_loss = sess.run([y, loss], feed_dict={X:testImages, labels:testLabels})
+        accuracy = np.mean(np.argmax(testLabels, axis=1) == np.argmax(predictions, axis=1))
+        print('Epoch: %d\tloss: %1.4f\taccuracy: %1.4f' % (epoch+1, test_loss, accuracy))
 
 #allows for saving and loading models. either run restore or save
-saver = tf.train.Saver()
+#saver = tf.train.Saver()
 #saver.restore(sess, "mnist_nn.txt")
-#saver.save(sess, "lmnist_nn.txt")
+#saver.save(sess, "mnist_nn.txt")
 
 #runs the neural network on the images
 predictions = sess.run(y, feed_dict={X:testImages})
-'''
-for i in range(0, len(predictions)):
-    print(testLabels[i])
-    print(predictions[i])
-'''
+
 #variables for viewing loop
 correct = 0
 total = 0
@@ -305,13 +183,16 @@ while loop == True and mplcount < len(testLabels):
     elif mplcount == count:
         name = "Raw Data 2:"
     else:
-        name = "MNIST Image #{}:".format(mplcount-count)
     '''
+    name = "Image #{}. Press space to move on, or Q to quit.".format(mplcount-count)
 
-    plt.figure(figsize=[8.8,4]).canvas.set_window_title("Image #" + str(total) + ": Press space to view the next image, Q to exit")
+    plt.figure(figsize=[8.8,4]).canvas.set_window_title(name)
     plt.subplot(1, 2, 1)
-    plt.imshow(testImages[mplcount].reshape(28, 28), cmap='gray')
-    x = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+    plt.imshow(testImages[mplcount].reshape(28, 28).transpose(), cmap='gray')
+
+    x = []
+    for i in range(0, lettercount):
+        x.append(i)
     y = predictions[mplcount]
     plt.subplot(1, 2, 2)
     if np.argmax(predictions[mplcount]) == np.argmax(testLabels[mplcount]):

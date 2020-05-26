@@ -13,3 +13,6 @@ Both datasets print to show the comparison.
 Update 5/20:
 Was able to trim down the dataset to only the first 10 letters.
 Shuffling the training data caused the machine learning to not work for some reason. Changing the shuffling method fixed this.
+
+Update 5/26:
+EMNIST letter detection working, use letterdetector.py

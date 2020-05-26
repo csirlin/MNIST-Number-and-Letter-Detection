@@ -13,15 +13,15 @@ import idx2numpy
 import struct
 
 #import mnist data and print basic info about it
-print("Type 'true' for EMNIST (letters) and anything else for MNIST (numbers)")
+print("Type 'm' for MNIST (numbers) and e for EMNIST (letter)")
 lettertest = input()
-
+lettercount=10
 trainImages = []
 trainLabels = []
 testImages = []
 testLabels = []
 
-if lettertest != "true":
+if lettertest == "m":
     print("Running MNIST")
 
     trI = mnist.train.images
@@ -107,9 +107,10 @@ if lettertest != "true":
     print("Working MNIST labels: " + str(trL[0]))
     print("Not working MNIST labels: " + str(trainLabels[0]))
 
-else:
+elif lettertest == "e":
     print("Running EMNIST")
-
+    print("What number of letters would you like to include?")
+    lettercount = int(input())
     trI = mnist.train.images
     trL = mnist.train.labels
     teI = mnist.test.images
@@ -157,14 +158,14 @@ else:
     testImages = np.copy(testImages[p])
     testLabels = np.copy(testLabels[p])
 
-    trainLabelsTemp = np.zeros((48000, 10))
-    testLabelsTemp = np.zeros((8000, 10))
-    trainImagesTemp = np.zeros((48000, 784))
-    testImagesTemp = np.zeros((8000, 784))
+    trainLabelsTemp = np.zeros((4800*lettercount, lettercount))
+    testLabelsTemp = np.zeros((800*lettercount, lettercount))
+    trainImagesTemp = np.zeros((4800*lettercount, 784))
+    testImagesTemp = np.zeros((800*lettercount, 784))
 
     j=0
     for i in range(0, len(trainLabels)):
-        if trainLabels[i] <= 10:
+        if trainLabels[i] <= lettercount:
             value = trainLabels[i]
             trainLabelsTemp[j][int(value)-1] = 1.0
             print("TRAINLABEL:{}".format(trainLabelsTemp[j]))
@@ -172,7 +173,7 @@ else:
             j+=1
     j=0
     for i in range(0, len(testLabels)):
-        if testLabels[i] <= 10:
+        if testLabels[i] <= lettercount:
             value = testLabels[i]
             testLabelsTemp[j][int(value)-1] = 1.0
             print("TESTLABEL:{}".format(testLabelsTemp[j]))
@@ -355,7 +356,7 @@ for digit in range(0,10):
 
 #neural network setup
 X = tf.placeholder(tf.float32, shape=(None, 784), name='X')
-labels = tf.placeholder(tf.float32, shape=(None, 10), name='Labels')
+labels = tf.placeholder(tf.float32, shape=(None, lettercount), name='Labels')
 
 #first round
 w1 = tf.Variable(name='w1', initial_value=tf.random_normal(shape=(784, 128), dtype=tf.float32))
@@ -370,15 +371,15 @@ a2 = tf.matmul(z1, w2) + b2
 z2 = tf.nn.relu(a2)
 
 #third round
-w3 = tf.Variable(name='w3', initial_value=tf.random_normal(shape=(32, 10), dtype=tf.float32))
-b3 = tf.Variable(name='b3', initial_value=tf.zeros(shape=(1,10), dtype=tf.float32))
+w3 = tf.Variable(name='w3', initial_value=tf.random_normal(shape=(32, lettercount), dtype=tf.float32))
+b3 = tf.Variable(name='b3', initial_value=tf.zeros(shape=(1,lettercount), dtype=tf.float32))
 y = tf.matmul(z2, w3) + b3
 
 #training setup and parameters
 loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=y)
 step = tf.train.AdamOptimizer().minimize(loss)
-BATCH_SIZE = 32
-EPOCHS = 40
+BATCH_SIZE = 128
+EPOCHS = 80
 m = len(trainImages)
 
 #creates training session
@@ -479,7 +480,9 @@ while loop == True and mplcount < len(testLabels):
     else:
         plt.imshow(testImages[mplcount].reshape(28, 28).transpose(), cmap='gray')
 
-    x = [0,1,2,3,4,5,6,7,8,9]
+    x = []
+    for i in range(0, lettercount):
+        x.append(i)
     y = predictions[mplcount]
     plt.subplot(1, 2, 2)
     if np.argmax(predictions[mplcount]) == np.argmax(testLabels[mplcount]):
