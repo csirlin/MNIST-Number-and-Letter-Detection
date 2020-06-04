@@ -15,11 +15,6 @@ trainImages = mnist.train.images
 trainLabels = mnist.train.labels
 testImages = mnist.test.images
 testLabels = mnist.test.labels
-print(type(trainImages))
-#print('trainImages:', trainImages.shape)
-#print('trainLabels:', trainLabels.shape)
-#print('testImages:', testImages.shape)
-#print('testLabels:', testLabels.shape)
 
 #matplotlib event listener
 loop = True
@@ -31,7 +26,7 @@ def press(event):
         plt.close()
 
 #setup for creating images
-baseimg = mpimg.imread('numberbase.png')
+baseimg = mpimg.imread('Numbers/numberbase.png')
 print("Make your own numbers!")
 count = 0
 blankimg = copy.deepcopy(baseimg)
@@ -41,10 +36,10 @@ createdLabels = []
 while loop == True:
 
     plt.imshow(blankimg)
-    plt.imsave('images/img{}.png'.format(count), blankimg)
+    plt.imsave('Numbers/img{}.png'.format(count), blankimg)
 
     plt.connect("key_press_event", press)
-    os.system('open images/img{}.png'.format(count))
+    os.system('open Numbers/img{}.png'.format(count))
     plt.show()
 
     print("What number is this?")
@@ -55,13 +50,12 @@ while loop == True:
     createdLabels.append(thing)
     count += 1
 
-
 createdLabels = np.asarray(createdLabels)
 
 #put all the created images in a loop
 createdImages=[None]*count
 for i in range(0,count):
-    img = mpimg.imread('images/img{}.png'.format(i))
+    img = mpimg.imread('Numbers/img{}.png'.format(i))
     img2=[]
     for j in range(0,28):
         for k in range(0,28):
@@ -81,7 +75,6 @@ trainImages.setflags(write=0)
 trainLabels.setflags(write=0)
 testImages.setflags(write=0)
 testLabels.setflags(write=0)
-
 
 '''
 #view some images
@@ -136,6 +129,7 @@ sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
 #training followed by testing every 5 epochs
+'''
 for epoch in range(EPOCHS):
     for i in range(BATCH_SIZE, m, BATCH_SIZE):
         trainBatch = trainImages[i-BATCH_SIZE:i]
@@ -145,7 +139,7 @@ for epoch in range(EPOCHS):
         predictions, test_loss = sess.run([y, loss], feed_dict={X:testImages, labels:testLabels})
         accuracy = np.mean(np.argmax(testLabels, axis=1) == np.argmax(predictions, axis=1))
         print('Epoch: %d\tloss: %1.4f\taccuracy: %1.4f' % (epoch+1, test_loss, accuracy))
-
+'''
 
 #allows for saving and loading models. either run restore or save
 saver = tf.train.Saver()
